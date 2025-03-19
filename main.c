@@ -17,10 +17,52 @@ typedef struct {
   u8 dest_mac[6];
   u8 source_mac[6];
   u8 type[2];
-} eth_packet;
+} eth_header;
+
+typedef struct {
+  u8 version;
+  u8 DSF;
+  u8 total_length[2];
+  u8 identification[2];
+  u8 flags;
+  u8 ttl;
+  u8 protocol;
+  u8 checksum[2];
+  u8 source_address[4];
+  u8 destination_address[4];
+} ipv4_header;
+
+typedef struct {
+  u8 source_port[2];
+  u8 destination_port[2];
+  u8 length[2];
+  u8 checksum[2];
+} upd_header;
+
+typedef struct {
+  u8 msg_type;
+  u8 hw_type;
+  u8 hw_address_len;
+  u8 hops;
+  u8 transaction_id[4];
+  u8 sec_elapsed[2];
+  u16 flags;
+  u8 old_ip[4];
+  u8 new_ip[4];
+  u8 next_server_ip[4];
+  u8 relay_server_ip[4];
+  u8 client_mac[4];
+  u8 client_padding[10];
+  u8 server_hostname[64];
+  u8 boot_file[128];
+  u8 magic_cookie[4];
+  /* options */
+} dhcp_header;
 
 int main() {
 
+  eth_header eth;
+  
   struct ifreq ifr;
   u8 fd, if_index;
 
