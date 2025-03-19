@@ -40,22 +40,22 @@ typedef struct {
 } upd_header;
 
 typedef struct {
-  u8 msg_type;
-  u8 hw_type;
-  u8 hw_address_len;
-  u8 hops;
-  u8 transaction_id[4];
-  u8 sec_elapsed[2];
+  u8  msg_type;
+  u8  hw_type;
+  u8  hw_address_len;
+  u8  hops;
+  u8  transaction_id[4];
   u16 flags;
-  u8 old_ip[4];
-  u8 new_ip[4];
-  u8 next_server_ip[4];
-  u8 relay_server_ip[4];
-  u8 client_mac[4];
-  u8 client_padding[10];
-  u8 server_hostname[64];
-  u8 boot_file[128];
-  u8 magic_cookie[4];
+  u8  sec_elapsed[2];
+  u8  old_ip[4];
+  u8  new_ip[4];
+  u8  next_server_ip[4];
+  u8  relay_server_ip[4];
+  u8  client_mac[4];
+  u8  client_padding[10];
+  u8  server_hostname[64];
+  u8  boot_file[128];
+  u8  magic_cookie[4];
   /* options */
 } dhcp_header;
 
