@@ -6,6 +6,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef unsigned char  u8;
 typedef unsigned short u16;
@@ -37,7 +38,7 @@ typedef struct {
   u8 destination_port[2];
   u8 length[2];
   u8 checksum[2];
-} upd_header;
+} udp_header;
 
 typedef struct {
   u8  msg_type;
@@ -62,6 +63,18 @@ typedef struct {
 int main() {
 
   eth_header eth;
+  ipv4_header ipv4;
+  udp_header udp;
+  dhcp_header dhcp;
+
+  memset(&eth,  0x00, sizeof(eth_header));
+  memset(&ipv4, 0x00, sizeof(ipv4_header));
+  memset(&udp,  0x00, sizeof(udp_header));
+  memset(&dhcp, 0x00, sizeof(dhcp_header));
+
+  memset(eth.dest_mac, 0xFF, 6);
+  
+  /* u8 source_mac[] = {} */
   
   struct ifreq ifr;
   u8 fd, if_index;
