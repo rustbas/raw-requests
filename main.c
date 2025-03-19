@@ -13,6 +13,12 @@ typedef unsigned int   u32;
 
 #define IF_NAME "wlp0s20f3"
 
+typedef struct {
+  u8 dest_mac[6];
+  u8 source_mac[6];
+  u8 type[2];
+} eth_packet;
+
 int main() {
 
   struct ifreq ifr;
