@@ -10,13 +10,17 @@
 #include <netpacket/packet.h>
 
 #define IF_NAME "wlp0s20f3"
+#define MAC_LEN 6
+#define IP_LEN  4
+#define PROTOCOL_TYPE_SHIFT 22
+#define PORT_SHIFT 2
 
 typedef unsigned char  u8;
 typedef unsigned short u16;
 
 typedef struct {
-  u8  dst[6];
-  u8  src[6];
+  u8  dst[MAC_LEN];
+  u8  src[MAC_LEN];
   u16 type;
 } eth_header;
 
@@ -26,10 +30,10 @@ typedef struct {
   u8  hw_size;
   u8  proto_size;
   u16 opcode;
-  u8  sender_mac[6];
-  u8  sender_ip[4];
-  u8  target_mac[6];
-  u8  target_ip[4];
+  u8  sender_mac[MAC_LEN];
+  u8  sender_ip[IP_LEN];
+  u8  target_mac[MAC_LEN];
+  u8  target_ip[IP_LEN];
 } arp_header;
 
 int main(){
@@ -39,13 +43,13 @@ int main(){
   int fd, if_index, i;
   eth_header eth;
   arp_header arp;
-  u8 frame[42];
+  u8 frame[sizeof(eth_header) + sizeof(arp_header)];
   u8 rbuf[512];
   ssize_t ret;
 
   /* Ethernet header fill */
   eth.type = htons(0x0806);  
-  memset(eth.dst, 0xFF, 6);
+  memset(eth.dst, 0xFF, MAC_LEN); /* Broadcasing MAC-address */
 
   /* ARP header fill */
   arp.hw_type = htons(0x0001);
@@ -53,13 +57,14 @@ int main(){
   arp.hw_size = 0x06;
   arp.proto_size = 0x04;
   arp.opcode = htons(0x0001);
-  memset(arp.target_mac, 0x00, 6);
+  memset(arp.target_mac, 0x00, MAC_LEN);
+  /* Router IP */
   arp.target_ip[0] = 192;
   arp.target_ip[1] = 168;
   arp.target_ip[2] = 2;
   arp.target_ip[3] = 1;
 
-  /* Get socker descriptor */
+  /* Get socket descriptor */
   fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
   if (fd == -1)
     return 1;
@@ -73,24 +78,25 @@ int main(){
   if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
     return 1;
   
-  memcpy(eth.src,        ifr.ifr_hwaddr.sa_data, 6);
-  memcpy(arp.sender_mac, ifr.ifr_hwaddr.sa_data, 6);
+  memcpy(eth.src,        ifr.ifr_hwaddr.sa_data, MAC_LEN);
+  memcpy(arp.sender_mac, ifr.ifr_hwaddr.sa_data, MAC_LEN);
   
   if (ioctl(fd, SIOCGIFADDR, &ifr) < 0)
     return 1;
   
   /* Adding 2 bytes because of port shift */
-  memcpy(arp.sender_ip, ifr.ifr_addr.sa_data+2, 4);
+
+  memcpy(arp.sender_ip, ifr.ifr_addr.sa_data+PORT_SHIFT, IP_LEN);
 
   /* Print interface data */
   
   printf("Index of %s is %d\n", IF_NAME, if_index);
   printf("MAC Address: ");
-  for (i=0; i<6; i++)
+  for (i=0; i<MAC_LEN; i++)
     printf("%X%c", eth.src[i], i==5?'\n':':');
 
   printf("IP Address:  ");
-  for (i=0; i<4; i++)
+  for (i=0; i<IP_LEN; i++)
     printf("%d%c", arp.sender_ip[i], i==3?'\n':'.');
 
   /* Create frame */
@@ -98,11 +104,14 @@ int main(){
   memcpy(frame+sizeof(eth_header), &arp, sizeof(arp_header));
 
   /* Print frame per byte */
+  printf("Frame:       ");
   for (i=0; i<sizeof(frame); i++)
     printf("%02X%c",
 	   *(frame+i) & 0xFF,
 	   (i<sizeof(frame)-1)?' ':'\n');
 
+  printf("=========================================================\n");
+  
   /* Create request */
   sll.sll_family   = PF_PACKET;
   sll.sll_ifindex  = if_index;
@@ -111,7 +120,7 @@ int main(){
   /* Send request */
   if (sendto(fd, frame, sizeof(frame), 0, (struct sockaddr *)&sll, sizeof(sll)) == -1)
     return -1;
-
+  
   /* Receive answer */
   for (;;) {
     /* Get all answers */
@@ -120,8 +129,9 @@ int main(){
     /* Filter only ARP answers */
     if (memcmp(rbuf+12, &eth.type, 2) == 0) {
       /* Print Answer MAC address */
-      for (i=0; i<6; i++)
-	printf("%X%c", *(rbuf+22+i), i<5?':':'\n');
+      printf("Answer - sender MAC: ");
+      for (i=0; i<MAC_LEN; i++)
+	printf("%X%c", *(rbuf+PROTOCOL_TYPE_SHIFT+i), i<5?':':'\n');
       break;
       }
   }
