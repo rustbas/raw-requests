@@ -104,7 +104,8 @@ int main(){
       return -1;
     if (memcmp(rbuf+12, &eth.type, 2) == 0)
       {
-      printf("ae\n");
+      for (i=0; i<6; i++)
+	printf("%X%c", *(rbuf+22+i), i<5?':':'\n');
       break;
       }
   }
