@@ -4,7 +4,7 @@
 
 ## Done
 
-- [ARP](./arp/README.md)
+- [ARP](./arp/)
 
 ## To be done
 
