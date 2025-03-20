@@ -116,10 +116,10 @@ int main(){
   
   /* Print frame per byte */
   printf("Frame:       ");
-  for (i=0; i<sizeof(frame); i++)
+  for (i=0; (long unsigned int)i<sizeof(frame); i++)
     printf("%02X%c",
 	   *(frame+i) & 0xFF,
-	   (i<sizeof(frame)-1)?' ':'\n');
+	   ((long unsigned int)i<sizeof(frame)-1)?' ':'\n');
 
   printf(PRINT_DELIM);
   

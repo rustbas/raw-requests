@@ -1,5 +1,5 @@
 CC=gcc
-# CFLAGS=-Wall -Wextra -pedantic -ansi
+CFLAGS=-Wall -Wextra -pedantic -std=gnu99
 
 all: main
 
