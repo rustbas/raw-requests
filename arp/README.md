@@ -67,7 +67,7 @@ typedef struct {
 
 1. Скачать репозиторий
 2. Собрать программу командой `make`
-3. Запустить в другом терминале сниффер пакетов (`tcpdump` или `wireshark`)
+3. Запустить в другом терминале сниффер пакетов (`tcpdump` или `wireshark`).
 Пример c `tcpdump`:
 ```shell
 sudo tcpdump -i wlp0s20f3 -v -t arp
