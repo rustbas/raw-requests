@@ -9,12 +9,12 @@
 #include <sys/socket.h>
 #include <netpacket/packet.h>
 
-#define IF_NAME "wlp0s20f3"
-#define MAC_LEN 6
-#define IP_LEN  4
-#define PROTOCOL_TYPE_SHIFT 22
-#define REQUEST_TYPE_SHIFT 12
-#define PORT_SHIFT 2
+#define PROTOCOL_TYPE_SHIFT  22
+#define REQUEST_TYPE_SHIFT   12
+#define PORT_SHIFT           2
+#define IF_NAME              "wlp0s20f3"
+#define MAC_LEN              6
+#define IP_LEN               4
 
 #define PRINT_DELIM \
   "=========================================================\n"
