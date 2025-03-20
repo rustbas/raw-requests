@@ -13,7 +13,11 @@
 #define MAC_LEN 6
 #define IP_LEN  4
 #define PROTOCOL_TYPE_SHIFT 22
+#define REQUEST_TYPE_SHIFT 12
 #define PORT_SHIFT 2
+
+#define PRINT_DELIM \
+  "=========================================================\n"
 
 typedef unsigned char  u8;
 typedef unsigned short u16;
@@ -64,6 +68,11 @@ int main(){
   arp.target_ip[2] = 2;
   arp.target_ip[3] = 1;
 
+  printf("Target IP:   ");
+  for (i=0; i<IP_LEN; i++)
+    printf("%d%c", arp.target_ip[i], i==3?'\n':'.');    
+  printf(PRINT_DELIM);
+  
   /* Get socket descriptor */
   fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
   if (fd == -1)
@@ -85,11 +94,9 @@ int main(){
     return 1;
   
   /* Adding 2 bytes because of port shift */
-
   memcpy(arp.sender_ip, ifr.ifr_addr.sa_data+PORT_SHIFT, IP_LEN);
 
   /* Print interface data */
-  
   printf("Index of %s is %d\n", IF_NAME, if_index);
   printf("MAC Address: ");
   for (i=0; i<MAC_LEN; i++)
@@ -102,7 +109,11 @@ int main(){
   /* Create frame */
   memcpy(frame, &eth, sizeof(eth_header));
   memcpy(frame+sizeof(eth_header), &arp, sizeof(arp_header));
+  
+  printf(PRINT_DELIM);
 
+
+  
   /* Print frame per byte */
   printf("Frame:       ");
   for (i=0; i<sizeof(frame); i++)
@@ -110,7 +121,7 @@ int main(){
 	   *(frame+i) & 0xFF,
 	   (i<sizeof(frame)-1)?' ':'\n');
 
-  printf("=========================================================\n");
+  printf(PRINT_DELIM);
   
   /* Create request */
   sll.sll_family   = PF_PACKET;
@@ -127,9 +138,9 @@ int main(){
     if ((ret = recv(fd, rbuf, sizeof(rbuf), 0)) == -1)
       return -1;
     /* Filter only ARP answers */
-    if (memcmp(rbuf+12, &eth.type, 2) == 0) {
+    if (memcmp(rbuf+REQUEST_TYPE_SHIFT, &eth.type, 2) == 0) {
       /* Print Answer MAC address */
-      printf("Answer - sender MAC: ");
+      printf("Target MAC:  ");
       for (i=0; i<MAC_LEN; i++)
 	printf("%X%c", *(rbuf+PROTOCOL_TYPE_SHIFT+i), i<5?':':'\n');
       break;
