@@ -38,6 +38,7 @@ typedef struct {
 
 
 typedef struct {
+  /* According to RFC 792 */
   u8 type;
   u8 code;
   u16 checksum;
