@@ -102,6 +102,23 @@ int main(){
   sll.sll_ifindex  = 3;
   sll.sll_protocol = 0x0806;
 
+  memcpy(frame, &eth, sizeof(eth_header));
+
+
+  for (size_t i=sizeof(eth_header);
+       i<sizeof(eth_header)+sizeof(ipv4_header);
+       i++)
+    printf("%02X ", frame[i]);
+  printf("\n\n");
+
+  memcpy(frame+sizeof(eth_header), &ipv4, sizeof(ipv4_header));
+
+  for (size_t i=sizeof(eth_header);
+       i<sizeof(eth_header)+sizeof(ipv4_header);
+       i++)
+    printf("%02X ", frame[i]);
+  printf("\n");
+  
   if (sendto(fd, frame, sizeof(frame), 0, (struct sockaddr *)&sll, sizeof(sll)) == -1)
     return -1;
   
