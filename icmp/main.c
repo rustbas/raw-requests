@@ -9,17 +9,19 @@
 #include <sys/socket.h>
 #include <netpacket/packet.h>
 
+#define MAC_LEN 6
+
 #define PRINT_DELIM \
   "=========================================================\n"
 
 typedef unsigned char  u8;
 typedef unsigned short u16;
 
-/* typedef struct { */
-/*   u8  dst[MAC_LEN]; */
-/*   u8  src[MAC_LEN]; */
-/*   u16 type; */
-/* } eth_header; */
+typedef struct {
+  u8  dst[MAC_LEN];
+  u8  src[MAC_LEN];
+  u16 type;
+} eth_header;
 
 typedef struct {
   /* According to RFC 791 3.1 */
@@ -69,6 +71,12 @@ int main(){
     
   
   int fd;
+
+  eth_header eth = {
+    .dst	= {0xe0, 0x2b, 0xe9, 0xab, 0xa2, 0x39},
+    .src	= {0x78, 0x9a, 0x18, 0x33, 0x29, 0x6a},
+    .type	= htons(0x0800),
+  };
   
   fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
   if (fd == -1)
