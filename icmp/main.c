@@ -73,9 +73,22 @@ int main(){
   int fd;
 
   eth_header eth = {
-    .dst	= {0xe0, 0x2b, 0xe9, 0xab, 0xa2, 0x39},
-    .src	= {0x78, 0x9a, 0x18, 0x33, 0x29, 0x6a},
+    .dst	= {0x78, 0x9a, 0x18, 0x33, 0x29, 0x6a},
+    .src	= {0xe0, 0x2b, 0xe9, 0xab, 0xa2, 0x39},
     .type	= htons(0x0800),
+  };
+
+  ipv4_header ipv4 = {
+    .version_ihl		= (0x45),
+    .type_of_service		= 0x00,
+    .total_length		= htons(0x0054),
+    .identivication		= htons(0x027e),
+    .flags_fragment_offset	= htons(0x4000),
+    .ttl			= (0x40),
+    .protocol			= (0x01),
+    .header_checksum		= htons(0xb2d7), /* TODO: create function to calculate checksum */
+    .src_address		= {192, 168, 2, 2},
+    .dst_address		= {192, 168, 2, 1},
   };
   
   fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
