@@ -37,8 +37,6 @@ typedef struct {
   u8 dst_address[4];
 } ipv4_header;
 
-
-
 typedef struct {
   /* According to RFC 792 */
   u8 type;
@@ -47,6 +45,22 @@ typedef struct {
   u16 identifier;
   u16 seq_number;
 } icmp_header;
+
+u16 calculate_checksum(ipv4_header *ipv4){
+
+  u16 *data = (u16*) ipv4;
+
+  const size_t data_len = 28 / 2; /* double-bytes size */
+  size_t i;
+  
+  u16 res = 0;
+
+  for (i=0; i<data_len; i++)
+    if (i != 5) /* checksum location */
+      res += htons(data[i]);
+  
+  return res;
+}
 
 int main(){
 
@@ -121,6 +135,7 @@ int main(){
   
   if (sendto(fd, frame, sizeof(frame), 0, (struct sockaddr *)&sll, sizeof(sll)) == -1)
     return -1;
-  
+
+  printf("%X\n", (calculate_checksum(&ipv4)));
   return 0;
 }
